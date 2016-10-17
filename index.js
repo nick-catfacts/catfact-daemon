@@ -106,7 +106,8 @@ var intro_message =function(){
     "ME-YOW!",
     "Are you kitten me?"
   ]
-  return intro_array[faker.random.number(3)]
+  // Note: faker returns 0-parameter!
+  return intro_array[faker.random.number(4)]
 }
 
 var generate_cancellation_code = function(){
