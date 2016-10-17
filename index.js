@@ -38,6 +38,7 @@ var process_recipient= function(recipient){
               console.log('API Response:\n', response);
               console.log('Message UUID:\n', response['message_uuid']);
               console.log('Api ID:\n', response['api_id']);
+              process.exit();
           })
 
 
