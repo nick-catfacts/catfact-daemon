@@ -3,7 +3,7 @@ var cat_facts = require('cat-facts')
 var twilio = require('twilio')
 var lodash = require('lodash')
 var faker = require('faker')
-var plivo_base = require('plivo')
+var plivo_base = require('plivo-promise')
 
 var plivo = plivo_base.RestAPI({
   authId: process.env.PLIVO_AUTH_ID,
@@ -16,11 +16,21 @@ var plivo_phone_number = process.env.PLIVO_PHONE_NUMBER
 // Get all users
 User.find({}, function(err, users) {
     users.forEach(function(user) {
+
       console.log("Catfact Daemon: Processing User:" + user.username)
-      if(!user.cat_fact_active){return;}
+
+      if(!user.cat_fact_active || user.account.messages_remaining <= 0)
+        {
+          console.log("User not valid to send messages!")
+          console.log("Messages Remaining: " + user.account.messages_remaining)
+          console.log("Catfact active?: " + user.cat_fact_active)
+          return;
+        }
+
       user.recipients.forEach(function(recipient){
-        process_recipient(recipient)
+        process_recipient(user, recipient)
       })
+
     });
   })
 .then(function(){
@@ -32,20 +42,35 @@ User.find({}, function(err, users) {
 })
 
 // process each recipient
-var process_recipient= function(recipient){
-        // console.log("\tProcessing recipient:" + recipient.first_name + " " + recipient.last_name)
+var process_recipient= function(user, recipient){
 
         if(is_time_to_send(recipient.interval)){
 
+          var message_text = build_random_cat_fact()
+
+          // Send intro message to first time recipients
+          if (recipient.number_sent == 0){
+            message_text = intro_text() + " " + message_text
+          }
           var params = get_message_params(recipient.phone)
           console.log(params)
+
+          recipient.number_sent += 1;
+          user.account.messages_used += 1;
+          user.account.messages_remaining -=1;
+
           // // Prints the complete response
-          plivo.send_message(params, function (status, response) {
-              console.log('Status: ', status);
-              console.log('API Response:\n', response);
-              console.log('Message UUID:\n', response['message_uuid']);
-              console.log('Api ID:\n', response['api_id'])
-          })
+
+          console.log('Status: ', status);
+          console.log('API Response:\n', response);
+          console.log('Message UUID:\n', response['message_uuid']);
+          console.log('Api ID:\n', response['api_id'])
+          // plivo.send_message(params, function (status, response) {
+          //     console.log('Status: ', status);
+          //     console.log('API Response:\n', response);
+          //     console.log('Message UUID:\n', response['message_uuid']);
+          //     console.log('Api ID:\n', response['api_id'])
+          // })
 
 
         }
@@ -54,11 +79,11 @@ var process_recipient= function(recipient){
         }
 }
 
-var get_message_params = function(dest_phone){
+var get_message_params = function(dest_phone, text){
   return {
     'src': plivo_phone_number, // Sender's phone number with country code
     'dst' : "+1" + dest_phone, // Receiver's phone Number with country code
-    'text' : build_random_cat_fact(), // Your SMS Text Message - English
+    'text' : text, // Your SMS Text Message - English
     'url' : "", // The URL to which with the status of the message is sent
     'method' : "GET" // The method used to call the url
   }
@@ -87,7 +112,7 @@ var build_random_cat_fact = function(){
 
 
 var intro_message = function(){
-  return "Thank you for subscribing to Catfacts! You are now on the list to occasionally receive a fun catfact! Meow! >^<"
+  return "Thank you for subscribing to Catfacts! You have a <year> subscription to receive fun periodic Cat Facts! Let's get started right meow! >^<"
 }
 
 
@@ -106,13 +131,13 @@ var reply = function(){
 
 var intro_message =function(){
   var intro_array = [
-    "Thanks for being a Cat Facts member!",
+    "Thanks for being a Cat Facts subscriber!",
     "Did you know:",
     "Thanks for your interest in Cat Facts!",
     "ME-YOW!",
     "Are you kitten me?"
   ]
-  // Note: faker returns 0-parameter!
+  // Note: faker returns a number in the range of 0 to the parameter!
   return intro_array[faker.random.number(4)]
 }
 

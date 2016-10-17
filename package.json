@@ -23,6 +23,7 @@
     "lodash": "^4.16.4",
     "mongoose": "^4.6.3",
     "plivo": "^0.4.0",
+    "plivo-promise": "^0.5.1-alpha",
     "twilio": "^2.11.0"
   }
 }
