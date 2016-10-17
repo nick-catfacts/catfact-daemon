@@ -22,7 +22,14 @@ User.find({}, function(err, users) {
         process_recipient(recipient)
       })
     });
-  });
+  })
+.then(function(){
+  process.exit();
+})
+.catch(function(err){
+  console.log(err)
+  process.exit(1)
+})
 
 // process each recipient
 var process_recipient= function(recipient){
@@ -37,8 +44,7 @@ var process_recipient= function(recipient){
               console.log('Status: ', status);
               console.log('API Response:\n', response);
               console.log('Message UUID:\n', response['message_uuid']);
-              console.log('Api ID:\n', response['api_id']);
-              process.exit();
+              console.log('Api ID:\n', response['api_id'])
           })
 
 
