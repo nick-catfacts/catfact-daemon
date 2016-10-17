@@ -3,8 +3,14 @@ var cat_facts = require('cat-facts')
 var twilio = require('twilio')
 var lodash = require('lodash')
 var faker = require('faker')
+var plivo_base = require('plivo')
 
+var plivo = plivo_base.RestAPI({
+  authId: process.env.PLIVO_AUTH_ID,
+  authToken: process.env.PLIVO_AUTH_TOKEN
+});
 
+var plivo_phone_number = process.env.PLIVO_PHONE_NUMBER
 
 
 // Get all users
@@ -20,16 +26,35 @@ User.find({}, function(err, users) {
 
 // process each recipient
 var process_recipient= function(recipient){
-        console.log("\tCatfact Daemon: Processing recipient:" + recipient.first_name + " " + recipient.last_name)
+        // console.log("\tProcessing recipient:" + recipient.first_name + " " + recipient.last_name)
 
         if(is_time_to_send(recipient.interval)){
-          console.log(recipient.phone)
-          console.log(build_random_cat_fact())
-          console.log(reply())
+
+          var params = get_message_params(recipient.phone)
+          console.log(params)
+          // // Prints the complete response
+          plivo.send_message(params, function (status, response) {
+              console.log('Status: ', status);
+              console.log('API Response:\n', response);
+              console.log('Message UUID:\n', response['message_uuid']);
+              console.log('Api ID:\n', response['api_id']);
+          })
+
+
         }
         else {
           console.log("NO TEXT MESSAGE")
         }
+}
+
+var get_message_params = function(dest_phone){
+  return {
+    'src': plivo_phone_number, // Sender's phone number with country code
+    'dst' : "+1" + dest_phone, // Receiver's phone Number with country code
+    'text' : build_random_cat_fact(), // Your SMS Text Message - English
+    'url' : "", // The URL to which with the status of the message is sent
+    'method' : "GET" // The method used to call the url
+  }
 }
 
 
@@ -77,7 +102,8 @@ var intro_message =function(){
     "Thanks for being a Cat Facts subscriber!",
     "Did you know:",
     "Thanks for your interest in Cat Facts!",
-    "ME-YOW!"
+    "ME-YOW!",
+    "Are you kitten me?"
   ]
   return intro_array[faker.random.number(3)]
 }
@@ -100,14 +126,3 @@ function generate_random_hash(character_options, length)
 
     return text;
 }
-
-// for each user
-// is catfact active?
-
-    // get all recipients
-    // for each recipient
-        //modulus interval with the time
-        //if yes
-            //get recipient phone
-            //get random cat fact
-            //twilio-> phone + catfact

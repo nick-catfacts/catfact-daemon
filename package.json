@@ -22,6 +22,7 @@
     "catfact-ecommerce": "git+https://github.com/nick-catfacts/catfact-ecommerce.git",
     "lodash": "^4.16.4",
     "mongoose": "^4.6.3",
+    "plivo": "^0.4.0",
     "twilio": "^2.11.0"
   }
 }
