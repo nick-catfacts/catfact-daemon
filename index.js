@@ -19,6 +19,7 @@ User.find({}, function(err, users) {
 
       console.log("Catfact Daemon: Processing User:" + user.username)
 
+      //Guard against inactive or not enough messages
       if(!user.cat_fact_active || user.account.messages_remaining <= 0)
         {
           console.log("User not valid to send messages!")
@@ -52,7 +53,7 @@ var process_recipient= function(user, recipient){
           if (recipient.number_sent == 0){
             message_text = intro_text() + " " + message_text
           }
-          var params = get_message_params(recipient.phone)
+          var params = get_message_params(recipient.phone, message_text)
           console.log(params)
 
           recipient.number_sent += 1;
