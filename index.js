@@ -99,7 +99,7 @@ var reply = function(){
 
 var intro_message =function(){
   var intro_array = [
-    "Thanks for being a Cat Facts subscriber!",
+    "Thanks for being a Cat Facts member!",
     "Did you know:",
     "Thanks for your interest in Cat Facts!",
     "ME-YOW!",
