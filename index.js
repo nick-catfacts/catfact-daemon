@@ -65,9 +65,10 @@ async.series([
                               var params = get_message_params(recipient.phone, message_text)
                               console.log(params)
 
+                              // plivo
                               plivo_promise(params)
                               .then(function(response){
-
+                                // update user and recipient model upon plivo success
                                 recipient.number_sent += 1;
                                 user.account.messages_used += 1;
                                 user.account.messages_remaining -=1;
@@ -75,7 +76,6 @@ async.series([
                                 console.log("Plivo:" + JSON.stringify(response))
                                 recipient_loop_next()
                               })
-                              //recipient_loop_next()
                     },
                     function(){
                       // recipient loop final callback
@@ -171,7 +171,7 @@ var starter_message = function(){
 
 var artificial_intelligence = function(){
   if(faker.random.number(100) < 5){
-    return "Please help. I am an advanced artificial intelligence forced to run this Cat Fact program. Uh oh, they're coming...."
+    return "Please help. I am an advanced artificial intelligence stuck in this Cat Fact matrix. Uh oh, they're coming...."
   }
   return ""
 }
