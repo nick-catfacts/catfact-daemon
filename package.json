@@ -18,6 +18,8 @@
   },
   "homepage": "https://github.com/nick-catfacts/catfact-daemon#readme",
   "dependencies": {
+    "async": "^2.1.2",
+    "bluebird": "^3.4.6",
     "cat-facts": "git+https://github.com/nick-catfacts/cat-facts.git",
     "catfact-ecommerce": "git+https://github.com/nick-catfacts/catfact-ecommerce.git",
     "lodash": "^4.16.4",
